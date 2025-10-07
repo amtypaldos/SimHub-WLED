@@ -66,6 +66,12 @@ namespace Halcyon.WLED
         {
             // Save settings
             this.SaveCommonSettings("GeneralSettings", Settings);
+            
+            // Dispose of LedHelper
+            if (LedHelper != null)
+            {
+                LedHelper.Dispose();
+            }
         }
 
         /// <summary>

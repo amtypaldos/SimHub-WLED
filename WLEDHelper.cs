@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
 using System.Net.Sockets;
-using System.Security.RightsManagement;
-using System.Text;
-using System.Threading.Tasks;
-using SimHub.Plugins.DataPlugins.PersistantTracker;
-using SimHub.Plugins.OutputPlugins.ControlRemapper.UI;
 
 namespace Halcyon.WLED
 {
-    public class WLEDHelper
+    public class WLEDHelper : IDisposable
     {
         private string host;
         private int port;
@@ -25,6 +18,7 @@ namespace Halcyon.WLED
         private (int, int, int) MaxColor { get; set; }
 
         private UdpClient LedClient { get; set; }
+        private bool disposed = false;
 
         public WLEDHelper(string host, int port)
         {
@@ -118,6 +112,35 @@ namespace Halcyon.WLED
         private List<Byte> ColorToByteList((int, int, int) color)
         {
             return new List<Byte> { BitConverter.GetBytes(color.Item1)[0], BitConverter.GetBytes(color.Item2)[0], BitConverter.GetBytes(color.Item3)[0] };
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    if (LedClient != null)
+                    {
+                        LedClient.Close();
+                        LedClient.Dispose();
+                        LedClient = null;
+                    }
+                }
+                disposed = true;
+            }
+        }
+
+        ~WLEDHelper()
+        {
+            Dispose(false);
         }
     }
 }
